@@ -6,9 +6,14 @@
 #include "ds1820.h"
 
 /**
- * Diese Funktion wird aufgerufen, wenn Timer1 auslöst
+ * Diese Variable stellt einen ReadCounter für den DS18S20 dar.
+ * 0      = Startwert
+ * BEGIN  = DS18S20 wird aufgefordert, die Temperatur zu "lesen"
+ * READ   = DS18S20 wird aufgefordert, die Temperatur dem Controller zu senden
  */
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void);
+unsigned int tempReadCounter = 0;
+const unsigned int BEGIN = 250;
+const unsigned int READ = 500;
 
 /**
  * Initialisiert interne Variablen / Register
@@ -40,48 +45,73 @@ void _initPins()
 
 /**
  * Führt die Anzeige-Loop aus, die nacheinander
- * alle nötigen Anzeigen durchgeht und diese "aktualisiert"
+ * alle nötigen Anzeigen durchgeht und diese "aktualisiert".
+ * Ebenso wird hier der Temperatursensor in einem mit BEGIN und READ festgelegten
+ * Intervall abgefragt. Es wird ein "Flackern" der Anzeige so gut es geht vermieden,
+ * indem die Anweisungen aufgesplittet wurden
  */
-void _doMultiplexingLoop()
-{
+void _doLoop()
+{    
+  /** 
+   * BINÄRE ANZEIGE
+   */
   GND_BIN = 1;
   bdisplay_loop();
-  __delay_ms(FREQ_SLEEP);
+  if (tempReadCounter == BEGIN || tempReadCounter == READ)
+    temp_initCon();
+  else
+    __delay_us(FREQ_SLEEP);
   GND_BIN = 0;
   
+  /**
+   * LED-SEGMENT 1
+   */
   GND_NUM1 = 1;
   ndisplay_loop(0);
-  __delay_ms(FREQ_SLEEP);
+  if (tempReadCounter == BEGIN)
+    temp_record();
+  else if (tempReadCounter == READ)
+    temp_sendData();
+  else
+    __delay_us(FREQ_SLEEP);
   GND_NUM1 = 0;
   
+  /**
+   * LED-SEGMENT 2
+   */
   GND_NUM2 = 1;
   ndisplay_loop(1);
-  __delay_ms(FREQ_SLEEP);
+  if(tempReadCounter == READ)
+  {
+    float temp = temp_interpret();
+    if(temp > -50) //<50 Datenmüll, WTF?? Wird sich schon nicht geändert haben...
+    {
+      ndisplay_set(temp);
+      bdisplay_set(temp);
+    }
+    tempReadCounter = 0;
+  }
+  else
+    __delay_us(FREQ_SLEEP);
   GND_NUM2 = 0;
   
+  /**
+   * LED-SEGMENT 3
+   */
   GND_NUM3 = 1;
   ndisplay_loop(2);
-  __delay_ms(FREQ_SLEEP);
+  __delay_us(FREQ_SLEEP);
   GND_NUM3 = 0;
 
+  /**
+   * LED-SEGMENT 4
+   */
   GND_NUM4 = 1;
   ndisplay_loop(3);
-  __delay_ms(FREQ_SLEEP);
+  __delay_us(FREQ_SLEEP);
   GND_NUM4 = 0;
-}
-
-/**
- * Initialisiert den Timer
- */
-void _initTimer()
-{
-  T1CON = 0;            //Vorherige Konfiguration löschen
-  T1CONbits.TCKPS = 3;  //Timer1 prescaler (0=1:1, 1=1:8, 2=1:64, 3=1:256) -> 8MHz / 256 = 31.250kHz 
-  PR1 = 0x3D09;         //31.250kHz / 15.625 (0x3D09) = 2 (schaltet bei 1Hz um -> 2Hz)
-  IPC0bits.T1IP = 5;    //Priorität (max. 0xFFFF)
-  T1CONbits.TON = 1;    //Timer einschalten
-  IFS0bits.T1IF = 0;    //Interrupt-Flag zurücksetzen
-  IEC0bits.T1IE = 1;    //Timer1 Interrupt einschalten
+  
+  tempReadCounter++;
 }
 
 /**
@@ -90,24 +120,10 @@ void _initTimer()
 int main()
 {
   _initInternal();
-  _initTimer();
   _initPins();
   
   while (1)
-  { 
-    _doMultiplexingLoop();
-  }
+    _doLoop();
   
   return 0;
-}
-
-/**
- * Interrupt-Routine für Timer1 (1Hz)
- */
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-{
-  float actTemp = getTemp();
-  bdisplay_set(actTemp);
-  ndisplay_set(actTemp);  
-  IFS0bits.T1IF = 0;
 }

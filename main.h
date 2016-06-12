@@ -16,8 +16,8 @@
 #define GND_NUM3    LATBbits.LATB13
 #define GND_NUM4    LATBbits.LATB14
 
-// Dauer die zwischen den Zyklen gewartet wird
-#define FREQ_SLEEP  4
+// Dauer in us die zwischen den Zyklen gewartet wird
+#define FREQ_SLEEP  1000
 
 #include <xc.h> 
 

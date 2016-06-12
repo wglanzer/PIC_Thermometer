@@ -1,6 +1,6 @@
 #include "numeric_display.h"
 
-float __num_displaynumber;
+float __num_displaynumber = -1;
 
 /**
  * Setzt die Zahl, die angezeigt werden soll.
@@ -20,6 +20,9 @@ void ndisplay_set(float pNumber)
 void ndisplay_loop(unsigned int pSegment)
 {
   _ndisplay_reset();
+  if(__num_displaynumber < 0)
+    return;
+  
   switch(pSegment)
   {
     case 0:
