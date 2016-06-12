@@ -3,6 +3,7 @@
 #include "binary_display.h"
 #include "numeric_display.h"
 #include <libpic30.h>
+#include "ds1820.h"
 
 /**
  * Diese Funktion wird aufgerufen, wenn Timer1 auslöst
@@ -105,5 +106,8 @@ int main()
  */
 void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 {
+  float actTemp = getTemp();
+  bdisplay_set(actTemp);
+  ndisplay_set(actTemp);  
   IFS0bits.T1IF = 0;
 }
