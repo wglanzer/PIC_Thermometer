@@ -5,6 +5,11 @@
 #include <libpic30.h>
 
 /**
+ * Diese Funktion wird aufgerufen, wenn Timer1 auslöst
+ */
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void);
+
+/**
  * Initialisiert interne Variablen / Register
  * mit bestimmten Werten
  */
@@ -65,11 +70,26 @@ void _doMultiplexingLoop()
 }
 
 /**
+ * Initialisiert den Timer
+ */
+void _initTimer()
+{
+  T1CON = 0;            //Vorherige Konfiguration löschen
+  T1CONbits.TCKPS = 3;  //Timer1 prescaler (0=1:1, 1=1:8, 2=1:64, 3=1:256) -> 8MHz / 256 = 31.250kHz 
+  PR1 = 0x3D09;         //31.250kHz / 15.625 (0x3D09) = 2 (schaltet bei 1Hz um -> 2Hz)
+  IPC0bits.T1IP = 5;    //Priorität (max. 0xFFFF)
+  T1CONbits.TON = 1;    //Timer einschalten
+  IFS0bits.T1IF = 0;    //Interrupt-Flag zurücksetzen
+  IEC0bits.T1IE = 1;    //Timer1 Interrupt einschalten
+}
+
+/**
  * Hauptfunktion
  */
 int main()
 {
   _initInternal();
+  _initTimer();
   _initPins();
   
   while (1)
@@ -78,4 +98,12 @@ int main()
   }
   
   return 0;
+}
+
+/**
+ * Interrupt-Routine für Timer1 (1Hz)
+ */
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+  IFS0bits.T1IF = 0;
 }
