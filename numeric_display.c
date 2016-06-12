@@ -3,6 +3,12 @@
 float __num_displaynumber = -1;
 
 /**
+ * Ab dieser Grenze ist der gesetzte Float-Wert
+ * nicht mehr gültig und es werden 888 angezeigt
+ */
+const float NUM_INVALID = -1000.0F;
+
+/**
  * Setzt die Zahl, die angezeigt werden soll.
  * Es werden 1 Kommastelle und 2 Vorkommastellen angezeigt
  * 
@@ -20,8 +26,17 @@ void ndisplay_set(float pNumber)
 void ndisplay_loop(unsigned int pSegment)
 {
   _ndisplay_reset();
-  if(__num_displaynumber < 0)
+  if(__num_displaynumber <= NUM_INVALID)
+  {
+    NUMLEDA = 1;
+    NUMLEDB = 1;
+    NUMLEDC = 1;
+    NUMLEDD = 1;
+    NUMLEDE = 1;
+    NUMLEDF = 1;
+    NUMLEDG = 1;
     return;
+  }
   
   switch(pSegment)
   {
@@ -45,6 +60,14 @@ void ndisplay_loop(unsigned int pSegment)
       _ndisplay_show_number(((unsigned int) (__num_displaynumber / 10.0F)) % 10);
       break;
   }
+}
+
+/**
+ * Setzt das Display ungültig
+ */
+void ndisplay_boot_anim()
+{
+  ndisplay_set(NUM_INVALID);
 }
 
 /**

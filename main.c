@@ -121,6 +121,10 @@ int main()
 {
   _initInternal();
   _initPins();
+
+  // "Booten"
+  ndisplay_boot_anim();
+  bdisplay_boot_anim();
   
   while (1)
     _doLoop();

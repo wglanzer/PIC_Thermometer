@@ -25,6 +25,11 @@
 #define NUMLEDG    LATBbits.LATB2
 
 /**
+ * Spielt die Boot-Animation auf diesem Display ab
+ */
+void ndisplay_boot_anim();
+
+/**
  * Setzt die Zahl, die angezeigt werden soll.
  * Es werden 1 Kommastelle und 2 Vorkommastellen angezeigt
  * 

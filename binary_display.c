@@ -1,6 +1,34 @@
 #include "binary_display.h"
+#include <libpic30.h>
 
 float __bin_displaynumber;
+
+/**
+ * Spielt die Boot-Animation auf diesem Display ab
+ */
+void bdisplay_boot_anim()
+{
+  _bdisplay_reset();
+  GND_BIN = 1;
+  
+  unsigned int i;
+  for(i = 0; i < 6; i++)
+  {
+    BINLED_DOT = i % 2;
+    __delay_ms(30);
+    BINLED1 = i % 2;
+    __delay_ms(30);
+    BINLED2 = i % 2;
+    __delay_ms(30);
+    BINLED3 = i % 2;
+    __delay_ms(30);
+    BINLED4 = i % 2;
+    __delay_ms(30);
+    BINLED5 = i % 2;
+    __delay_ms(30);
+    BINLED6 = i % 2;
+  }
+}
 
 /**
  * Setzt die Zahl, die angezeigt werden soll.

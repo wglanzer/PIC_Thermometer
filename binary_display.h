@@ -26,6 +26,11 @@
 #define BINLED6    LATAbits.LATA2
 
 /**
+ * Spielt die Boot-Animation auf diesem Display ab
+ */
+void bdisplay_boot_anim();
+
+/**
  * Setzt die Zahl, die angezeigt werden soll.
  * Kommastellenbehandlung:
  * Erste Kommastelle >= 5 -> LED an
