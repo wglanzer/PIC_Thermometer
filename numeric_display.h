@@ -16,13 +16,14 @@
 /*
  * Macros für Konfiguration 
  */
-#define NUMLEDA    LATAbits.LATA1
-#define NUMLEDB    LATAbits.LATA2
-#define NUMLEDC    LATBbits.LATB3
-#define NUMLEDD    LATAbits.LATA4
-#define NUMLEDE    LATBbits.LATB0
-#define NUMLEDF    LATBbits.LATB1
+#define NUMLEDA    LATBbits.LATB5
+#define NUMLEDB    LATBbits.LATB3
+#define NUMLEDC    LATBbits.LATB0
+#define NUMLEDD    LATBbits.LATB1
+#define NUMLEDE    LATAbits.LATA2
+#define NUMLEDF    LATAbits.LATA4
 #define NUMLEDG    LATBbits.LATB2
+#define NUMLED_DOT LATAbits.LATA1
 
 /**
  * Spielt die Boot-Animation auf diesem Display ab
@@ -36,6 +37,13 @@ void ndisplay_boot_anim();
  * @param pNumber Zahl, die angezeigt werden soll
  */
 void ndisplay_set(float pNumber);
+
+/**
+ * Setzt, dass gerade etwas geladen wird
+ * 
+ * @param pIsLoading 1="Lädt gerade", 0="Laden fertig"
+ */
+void ndisplay_set_loading(unsigned int pIsLoading);
 
 /**
  * Setzt die OUTPUT-Pins auf den nötigen Zustand,

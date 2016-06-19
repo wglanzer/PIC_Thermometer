@@ -12,8 +12,9 @@
  * READ   = DS18S20 wird aufgefordert, die Temperatur dem Controller zu senden
  */
 unsigned int tempReadCounter = 0;
-const unsigned int BEGIN = 250;
-const unsigned int READ = 500;
+const unsigned int BEGIN = 2000;
+const unsigned int READ = 2250;
+float currentTempToShow = 0;
 
 /**
  * Initialisiert interne Variablen / Register
@@ -55,9 +56,9 @@ void _doLoop()
   /** 
    * BINÄRE ANZEIGE
    */
-  GND_BIN = 1;
   bdisplay_loop();
-  if (tempReadCounter == BEGIN || tempReadCounter == READ)
+  GND_BIN = 1;
+  if (tempReadCounter == BEGIN || tempReadCounter >= READ)
     temp_initCon();
   else
     __delay_us(FREQ_SLEEP);
@@ -66,11 +67,14 @@ void _doLoop()
   /**
    * LED-SEGMENT 1
    */
-  GND_NUM1 = 1;
   ndisplay_loop(0);
+  GND_NUM1 = 1;
   if (tempReadCounter == BEGIN)
+  {
     temp_record();
-  else if (tempReadCounter == READ)
+    ndisplay_set_loading(1);
+  }
+  else if (tempReadCounter >= READ)
     temp_sendData();
   else
     __delay_us(FREQ_SLEEP);
@@ -79,9 +83,9 @@ void _doLoop()
   /**
    * LED-SEGMENT 2
    */
-  GND_NUM2 = 1;
   ndisplay_loop(1);
-  if(tempReadCounter == READ)
+  GND_NUM2 = 1;
+  if(tempReadCounter >= READ)
   {
     float temp = temp_interpret();
     if(temp > -50) //<50 Datenmüll, WTF?? Wird sich schon nicht geändert haben...
@@ -90,6 +94,7 @@ void _doLoop()
       bdisplay_set(temp);
     }
     tempReadCounter = 0;
+    ndisplay_set_loading(0);
   }
   else
     __delay_us(FREQ_SLEEP);
@@ -98,17 +103,26 @@ void _doLoop()
   /**
    * LED-SEGMENT 3
    */
-  GND_NUM3 = 1;
   ndisplay_loop(2);
+  GND_NUM3 = 1;
   __delay_us(FREQ_SLEEP);
   GND_NUM3 = 0;
 
   /**
    * LED-SEGMENT 4
    */
-  GND_NUM4 = 1;
   ndisplay_loop(3);
-  __delay_us(FREQ_SLEEP);
+  GND_NUM4 = 1;
+  if (tempReadCounter == READ)
+  {
+    if(currentTempToShow > -50) //<50 Datenmüll, WTF?? Wird sich schon nicht geändert haben...
+    {
+      ndisplay_set(currentTempToShow);
+      bdisplay_set(currentTempToShow);
+    }
+  }
+  else
+    __delay_us(FREQ_SLEEP);
   GND_NUM4 = 0;
   
   tempReadCounter++;
@@ -125,6 +139,9 @@ int main()
   // "Booten"
   ndisplay_boot_anim();
   bdisplay_boot_anim();
+  
+  // Wir wollen am Anfang auch schon eine Anzeige haben
+  tempReadCounter = BEGIN - 5;
   
   while (1)
     _doLoop();

@@ -1,6 +1,7 @@
 #include "numeric_display.h"
 
 float __num_displaynumber = -1;
+unsigned int __num_isLoading = 0;
 
 /**
  * Ab dieser Grenze ist der gesetzte Float-Wert
@@ -35,8 +36,17 @@ void ndisplay_loop(unsigned int pSegment)
     NUMLEDE = 1;
     NUMLEDF = 1;
     NUMLEDG = 1;
+    NUMLED_DOT = 1;
     return;
   }
+  
+  // Den Punkt brauchen wir immer...
+  if(pSegment == 2)
+    NUMLED_DOT = 1;
+  
+  // Beim Laden brauchen wir den Punkt
+  if(pSegment == 0)
+    NUMLED_DOT = __num_isLoading;
   
   switch(pSegment)
   {
@@ -62,6 +72,17 @@ void ndisplay_loop(unsigned int pSegment)
   }
 }
 
+
+/**
+ * Setzt, dass gerade etwas geladen wird
+ * 
+ * @param pIsLoading 1="Lädt gerade", 0="Laden fertig"
+ */
+void ndisplay_set_loading(unsigned int pIsLoading)
+{
+  __num_isLoading = pIsLoading;
+}
+
 /**
  * Setzt das Display ungültig
  */
@@ -77,6 +98,7 @@ void ndisplay_boot_anim()
  */
 void _ndisplay_reset()
 {
+  NUMLED_DOT = 0;
   NUMLEDA = 0;
   NUMLEDB = 0;
   NUMLEDC = 0;

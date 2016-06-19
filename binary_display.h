@@ -17,13 +17,13 @@
 /*
  * Macros für Konfiguration 
  */
-#define BINLED_DOT LATAbits.LATA1
-#define BINLED1    LATBbits.LATB2
-#define BINLED2    LATBbits.LATB1
-#define BINLED3    LATBbits.LATB0
+#define BINLED_DOT LATBbits.LATB1
+#define BINLED1    LATBbits.LATB0
+#define BINLED2    LATAbits.LATA1
+#define BINLED3    LATBbits.LATB5
 #define BINLED4    LATAbits.LATA4
-#define BINLED5    LATBbits.LATB3
-#define BINLED6    LATAbits.LATA2
+#define BINLED5    LATAbits.LATA2
+#define BINLED6    LATBbits.LATB2
 
 /**
  * Spielt die Boot-Animation auf diesem Display ab

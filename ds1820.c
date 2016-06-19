@@ -49,7 +49,12 @@ float temp_interpret()
   if (DS18S20[1] == 0) // Positive Temp.-Werte
     ftemp = DS18S20[0] / 2.0F;
   else // Neg. Temp.-Werte
-    ftemp = (((~DS18S20[0]) + 1) * (-1.0F)) / 2.0F;
-  
+  {
+    uint8_t ftemp_temp = ~DS18S20[0];
+    if(ftemp_temp < UINT8_MAX)
+      ftemp_temp++;
+    ftemp = (ftemp_temp * (-1.0F)) / 2.0F;
+  }
+
   return ftemp;
 }
