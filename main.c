@@ -88,7 +88,7 @@ void _doLoop()
   if(tempReadCounter >= READ)
   {
     float temp = temp_interpret();
-    if(temp > -50) //<50 Datenmüll, WTF?? Wird sich schon nicht geändert haben...
+    if(temp < 99 && temp > 0)
     {
       ndisplay_set(temp);
       bdisplay_set(temp);
@@ -113,16 +113,7 @@ void _doLoop()
    */
   ndisplay_loop(3);
   GND_NUM4 = 1;
-  if (tempReadCounter == READ)
-  {
-    if(currentTempToShow > -50) //<50 Datenmüll, WTF?? Wird sich schon nicht geändert haben...
-    {
-      ndisplay_set(currentTempToShow);
-      bdisplay_set(currentTempToShow);
-    }
-  }
-  else
-    __delay_us(FREQ_SLEEP);
+  __delay_us(FREQ_SLEEP);
   GND_NUM4 = 0;
   
   tempReadCounter++;
@@ -136,9 +127,9 @@ int main()
   _initInternal();
   _initPins();
 
-  // "Booten"
-  ndisplay_boot_anim();
-  bdisplay_boot_anim();
+  // "Booten" Derzeit deaktiviert, weil 1. unnötig, 2. z.Z. stürzt es öfters ab --> deaktivieren
+  //ndisplay_boot_anim();
+  //bdisplay_boot_anim();
   
   // Wir wollen am Anfang auch schon eine Anzeige haben
   tempReadCounter = BEGIN - 5;
